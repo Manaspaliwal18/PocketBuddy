@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Analytics{% endblock %}
+ 
+{% block extra_styles %}
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.chart-area{padding:20px 22px 14px}
+.chart-wrap{position:relative;height:240px}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-1px;color:var(--ink);margin-bottom:4px}
+.stat-lbl{font-size:12px;color:var(--ink-3);font-weight:300}
+.trend-table{width:100%;border-collapse:collapse}
+.trend-table th{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);padding:10px 22px;text-align:left;border-bottom:1.5px solid var(--border)}
+.trend-table td{padding:13px 22px;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink-2)}
+.trend-table tr:last-child td{border-bottom:none}
+.trend-table tr:hover td{background:var(--bg)}
+.trend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px}
+.change-up{color:#009e83;font-weight:600}
+.change-down{color:var(--coral);font-weight:600}
+@media(max-width:768px){.analytics-grid{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr 1fr}}
+{% endblock %}
+ 
+{% block content %}
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>Analytics 📊</h1>
+    <p>Deep-dive into your spending patterns · <strong>{{ now }}</strong></p>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-outline">⬇ Export</button>
+    <button class="btn btn-chat" id="openChatBtn">✦ Ask AI</button>
+  </div>
+</div>
+ 
+<div class="section-label">Summary stats</div>
+<div class="stat-row">
+  <div class="stat-card"><div class="stat-num">₹{{ summary.total_spent }}</div><div class="stat-lbl">Total this month</div></div>
+  <div class="stat-card"><div class="stat-num">{{ summary.num_transactions }}</div><div class="stat-lbl">Transactions</div></div>
+  <div class="stat-card"><div class="stat-num">₹{{ summary.avg_daily }}</div><div class="stat-lbl">Avg per transaction</div></div>
+</div>
+ 
+<div class="section-label">Charts</div>
+<div class="analytics-grid">
+  <div class="card">
+    <div class="card-head"><span class="card-title">Spending by Category</span></div>
+    <div class="chart-area"><div class="chart-wrap"><canvas id="catChart"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Daily Spending Trend</span></div>
+    <div class="chart-area"><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+  </div>
+</div>
+ 
+<div class="section-label">Category breakdown</div>
+<div class="card">
+  <table class="trend-table">
+    <thead><tr><th>Category</th><th>Amount</th><th>Share</th><th>vs Avg</th></tr></thead>
+    <tbody id="catTable"></tbody>
+  </table>
+</div>
+{% endblock %}
+ 
+{% block extra_scripts %}
+<script>
+const RAW={{ summary.category_breakdown|tojson }};
+const COLORS=["#ff6b6b","#4f6ef7","#9b5de5","#f5a623","#00c9a7","#2d6a4f","#f472b6","#22d3ee"];
+const labels=Object.keys(RAW),values=Object.values(RAW),total=values.reduce((s,v)=>s+v,0)||1;
+const colors=labels.map((_,i)=>COLORS[i%COLORS.length]);
+ 
+/* Horizontal bar — category */
+new Chart(document.getElementById('catChart'),{type:'bar',data:{labels,datasets:[{data:values,backgroundColor:colors.map(c=>c+'33'),borderColor:colors,borderWidth:2,borderRadius:6}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f0f0f',titleColor:'#fff',bodyColor:'#aaa',callbacks:{label:c=>`  ₹${c.parsed.x.toLocaleString('en-IN')}`}}},scales:{x:{grid:{color:'#f0ede6'},border:{display:false},ticks:{callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'k':v),font:{size:11},color:'#bbb'}},y:{grid:{display:false},border:{display:false},ticks:{font:{family:'Syne',size:11,weight:'600'},color:'#888'}}}}});
+ 
+/* Line — trend (mock daily data grouped from real) */
+const dailyData={{ daily_totals|tojson }};
+const dLabels=Object.keys(dailyData).map(d=>d.slice(5));
+const dValues=Object.values(dailyData);
+new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:dLabels,datasets:[{data:dValues,borderColor:'#4f6ef7',backgroundColor:'rgba(79,110,247,.08)',borderWidth:2.5,pointBackgroundColor:'#4f6ef7',pointRadius:3,pointHoverRadius:5,fill:true,tension:.35}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f0f0f',titleColor:'#fff',bodyColor:'#aaa',callbacks:{label:c=>`  ₹${c.parsed.y.toLocaleString('en-IN')}`}}},scales:{x:{grid:{display:false},border:{display:false},ticks:{font:{size:10},color:'#bbb',maxRotation:0,maxTicksLimit:8}},y:{grid:{color:'#f0ede6'},border:{display:false},ticks:{callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'k':v),font:{size:11},color:'#bbb'}}}}});
+ 
+/* Table */
+const avg=total/labels.length;
+const tbody=document.getElementById('catTable');
+labels.forEach((lbl,i)=>{
+  const pct=((values[i]/total)*100).toFixed(1);
+  const diff=values[i]-avg,sign=diff>=0?'+':'';
+  const cls=diff>=0?'change-down':'change-up';
+  tbody.innerHTML+=`<tr><td><span class="trend-dot" style="background:${colors[i]}"></span>${lbl}</td><td><strong>₹${values[i].toLocaleString('en-IN')}</strong></td><td>${pct}%</td><td class="${cls}">${sign}₹${Math.abs(diff).toFixed(0)}</td></tr>`;
+});
+</script>
+{% endblock %}

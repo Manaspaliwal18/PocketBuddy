@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Transactions{% endblock %}
+ 
+{% block extra_styles %}
+.filter-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.filter-btn{font-family:'Syne',sans-serif;font-size:12px;font-weight:600;padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);color:var(--ink-3);cursor:pointer;transition:all var(--t)}
+.filter-btn.active,.filter-btn:hover{background:var(--ink);color:white;border-color:var(--ink)}
+.search-box{flex:1;min-width:180px;padding:8px 14px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-family:'Epilogue',sans-serif;font-size:13px;color:var(--ink);background:var(--white);outline:none;transition:border-color var(--t)}
+.search-box:focus{border-color:var(--indigo)}
+.txn-table{width:100%;border-collapse:collapse}
+.txn-table th{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);padding:10px 22px;text-align:left;border-bottom:1.5px solid var(--border);white-space:nowrap}
+.txn-table td{padding:14px 22px;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink-2)}
+.txn-table tr:last-child td{border-bottom:none}
+.txn-table tbody tr{transition:background var(--t);cursor:default}
+.txn-table tbody tr:hover td{background:var(--bg)}
+.txn-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-family:'Syne',sans-serif;font-size:11px;font-weight:600}
+.txn-amount{font-family:'Syne',sans-serif;font-weight:700;color:var(--ink)}
+.txn-date{color:var(--ink-4);font-size:12px}
+.empty-state{text-align:center;padding:48px 22px;color:var(--ink-4)}
+.empty-state .es-icon{font-size:36px;margin-bottom:12px}
+.empty-state p{font-size:14px;font-weight:300}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-top:1.5px solid var(--border)}
+.page-info{font-size:12px;color:var(--ink-4)}
+.page-btns{display:flex;gap:6px}
+.page-btn{padding:6px 12px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:var(--white);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:var(--ink-3);cursor:pointer;transition:all var(--t)}
+.page-btn:hover,.page-btn.active{background:var(--ink);color:white;border-color:var(--ink)}
+@media(max-width:680px){.txn-table th:nth-child(3),.txn-table td:nth-child(3){display:none}.filter-bar{gap:8px}}
+{% endblock %}
+ 
+{% block content %}
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>Transactions 💳</h1>
+    <p>All your spending records · <strong>{{ now }}</strong></p>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-outline">⬇ Export CSV</button>
+    <button class="btn btn-chat" id="openChatBtn">✦ Ask AI</button>
+    <button class="btn btn-primary">+ Add</button>
+  </div>
+</div>
+ 
+<div class="section-label">{{ transactions | length }} transactions</div>
+ 
+<div class="filter-bar">
+  <input class="search-box" id="searchBox" placeholder="🔍 Search transactions…" type="text"/>
+  <button class="filter-btn active" data-cat="All">All</button>
+  {% for cat in categories %}
+  <button class="filter-btn" data-cat="{{ cat }}">{{ cat }}</button>
+  {% endfor %}
+</div>
+ 
+<div class="card">
+  <table class="txn-table">
+    <thead>
+      <tr><th>Date</th><th>Category</th><th>Notes</th><th style="text-align:right">Amount</th></tr>
+    </thead>
+    <tbody id="txnBody">
+      {% if transactions %}
+        {% for txn in transactions %}
+        <tr data-cat="{{ txn.category }}" data-search="{{ txn.category | lower }} {{ txn.date }}">
+          <td><span class="txn-date">{{ txn.date }}</span></td>
+          <td>
+            <span class="txn-chip" style="background:{{ txn.bg }};color:{{ txn.color }}">
+              {{ txn.icon }} {{ txn.category }}
+            </span>
+          </td>
+          <td style="color:var(--ink-4);font-style:italic">—</td>
+          <td style="text-align:right"><span class="txn-amount">₹{{ "{:,}".format(txn.amount | int) }}</span></td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="4"><div class="empty-state"><div class="es-icon">💳</div><p>No transactions yet. Add your first entry!</p></div></td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+  {% if transactions %}
+  <div class="pagination">
+    <span class="page-info" id="pageInfo">Showing all {{ transactions | length }} records</span>
+    <div class="page-btns"><button class="page-btn active">1</button></div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+ 
+{% block extra_scripts %}
+<script>
+const rows = Array.from(document.querySelectorAll('#txnBody tr[data-cat]'));
+const searchBox = document.getElementById('searchBox');
+ 
+function filterRows() {
+  const activeCat = document.querySelector('.filter-btn.active')?.dataset.cat || 'All';
+  const query = searchBox.value.toLowerCase();
+  let visible = 0;
+  rows.forEach(row => {
+    const catMatch = activeCat === 'All' || row.dataset.cat === activeCat;
+    const searchMatch = !query || row.dataset.search.includes(query);
+    const show = catMatch && searchMatch;
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  const pi = document.getElementById('pageInfo');
+  if (pi) pi.textContent = `Showing ${visible} of ${rows.length} records`;
+}
+ 
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterRows();
+  });
+});
+searchBox.addEventListener('input', filterRows);
+</script>
+{% endblock %}

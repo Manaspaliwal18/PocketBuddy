@@ -1,4 +1,8 @@
-Expense,amount,category
-food,200.0,
-food,250.0,
-,200.0,food
+category,amount
+Rent,15000
+Internet,999
+Gym,1500
+Netflix,649
+Insurance,3200
+Electricity,1800
+ 

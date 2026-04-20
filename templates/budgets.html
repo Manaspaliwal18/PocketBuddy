@@ -1,91 +1,51 @@
 {% extends "base.html" %}
-{% block title %}Budgets{% endblock %}
- 
-{% block extra_styles %}
-.overview-card{background:var(--ink);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow-lg);margin-bottom:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-.oc-item{text-align:center}
-.oc-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:4px}
-.oc-lbl{font-size:11px;color:#555;font-weight:300;text-transform:uppercase;letter-spacing:.08em}
-.budgets-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:28px}
-.budget-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);transition:transform var(--t),box-shadow var(--t)}
-.budget-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
-.bc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.bc-icon{width:40px;height:40px;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;font-size:18px}
-.bc-status{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
-.bc-status.ok{background:var(--teal-soft);color:#009e83}
-.bc-status.warn{background:var(--amber-soft);color:#b07d00}
-.bc-status.over{background:var(--coral-soft);color:#d44}
-.bc-cat{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:2px}
-.bc-meta{font-size:12px;color:var(--ink-4);margin-bottom:14px}
-.bc-bar-wrap{height:7px;background:var(--bg-2);border-radius:4px;overflow:hidden;margin-bottom:10px}
-.bc-bar-fill{height:100%;border-radius:4px;width:0;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
-.bc-footer{display:flex;justify-content:space-between;align-items:center}
-.bc-spent{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--ink)}
-.bc-limit{font-size:12px;color:var(--ink-4)}
-.add-budget-card{background:var(--bg);border:2px dashed var(--border);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all var(--t);min-height:150px;-webkit-tap-highlight-color:transparent}
-.add-budget-card:hover,.add-budget-card:active{border-color:var(--indigo);background:var(--indigo-soft)}
-.add-icon{font-size:26px;color:var(--ink-4)}
-.add-label{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--ink-4)}
-.add-budget-card:hover .add-icon,.add-budget-card:hover .add-label{color:var(--indigo)}
-@media(max-width:768px){
-  .overview-card{padding:18px 16px;gap:12px}
-  .oc-val{font-size:18px}
-  .budgets-grid{grid-template-columns:1fr 1fr;gap:12px}
-  .budget-card{padding:16px}
-  .bc-icon{width:34px;height:34px;font-size:16px}
-}
-@media(max-width:480px){
-  .overview-card{grid-template-columns:1fr 1fr}
-  .overview-card .oc-item:last-child{display:none}
-  .budgets-grid{grid-template-columns:1fr}
-  .oc-val{font-size:20px}
-}
-{% endblock %}
- 
+{% block page_title %}Budgets{% endblock %}
+
 {% block content %}
-<div class="topbar">
-  <div class="topbar-left">
-    <h1>Budgets 🎯</h1>
-    <p>Track limits and stay on target · <strong>{{ now }}</strong></p>
+<div class="grid-4" style="margin-bottom:24px;">
+  <div class="stat-card">
+    <div class="stat-label">Total Spent</div>
+    <div class="stat-value" style="color:var(--danger);">₹{{ summary.total_spent }}</div>
   </div>
-  <div class="topbar-right">
-    <button class="btn btn-chat" id="openChatBtn">✦ Ask AI</button>
-    <button class="btn btn-primary">+ New Budget</button>
+  <div class="stat-card">
+    <div class="stat-label">Categories Tracked</div>
+    <div class="stat-value" style="color:var(--accent);">{{ budgets | length }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Over Budget</div>
+    <div class="stat-value" style="color:{% if budget_over_count > 0 %}var(--danger){% else %}var(--success){% endif %};">{{ budget_over_count }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">On Track</div>
+    <div class="stat-value" style="color:var(--success);">{{ budgets | length - budget_over_count }}</div>
   </div>
 </div>
- 
-<div class="section-label">Monthly overview</div>
-<div class="overview-card">
-  <div class="oc-item"><div class="oc-val" style="color:var(--teal)">₹{{ summary.total_spent }}</div><div class="oc-lbl">Total spent</div></div>
-  <div class="oc-item"><div class="oc-val" style="color:white">₹68,000</div><div class="oc-lbl">Total budget</div></div>
-  <div class="oc-item"><div class="oc-val" style="color:var(--coral)">{{ budget_over_count }}</div><div class="oc-lbl">Over budget</div></div>
-</div>
- 
-<div class="section-label">Category budgets</div>
-<div class="budgets-grid">
+
+<div class="grid-2">
   {% for b in budgets %}
-  <div class="budget-card">
-    <div class="bc-top">
-      <div class="bc-icon" style="background:{{ b.bg }}">{{ b.icon }}</div>
-      <span class="bc-status {{ b.status_class }}">{{ b.status_label }}</span>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:24px;">{{ b.icon }}</span>
+        <div>
+          <div style="font-size:14px;font-weight:600;">{{ b.category }}</div>
+          <div style="font-size:11px;color:var(--muted);">Limit: ₹{{ b.limit | int }}</div>
+        </div>
+      </div>
+      <span class="badge badge-{{ b.status_class }}">{{ b.status_label }}</span>
     </div>
-    <div class="bc-cat">{{ b.category }}</div>
-    <div class="bc-meta">Budget: ₹{{ "{:,}".format(b.limit) }} / month</div>
-    <div class="bc-bar-wrap"><div class="bc-bar-fill" data-w="{{ b.pct }}" style="background:{{ b.bar_color }}"></div></div>
-    <div class="bc-footer">
-      <span class="bc-spent">₹{{ "{:,}".format(b.spent|int) }} spent</span>
-      <span class="bc-limit">{{ b.pct }}% used</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" style="width:{{ b.pct }}%;background:{{ b.bar_color }};"></div>
     </div>
+    <div style="display:flex;justify-content:space-between;margin-top:8px;">
+      <span style="font-size:12px;color:var(--muted);">₹{{ b.spent | int }} spent</span>
+      <span style="font-size:12px;font-weight:600;color:{{ b.bar_color }};">{{ b.pct }}%</span>
+    </div>
+  </div>
+  {% else %}
+  <div style="grid-column:1/-1;" class="card">
+    <p style="color:var(--muted);text-align:center;padding:24px;">No budget data available. Add transactions to see budget tracking.</p>
   </div>
   {% endfor %}
-  <div class="add-budget-card"><span class="add-icon">＋</span><span class="add-label">Add new budget</span></div>
 </div>
-{% endblock %}
- 
-{% block extra_scripts %}
-<script>
-requestAnimationFrame(()=>setTimeout(()=>{
-  document.querySelectorAll('.bc-bar-fill').forEach(el=>el.style.width=Math.min(el.dataset.w,100)+'%');
-},300));
-</script>
 {% endblock %}

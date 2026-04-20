@@ -1,134 +1,46 @@
 {% extends "base.html" %}
-{% block title %}Schedule{% endblock %}
- 
-{% block extra_styles %}
-.schedule-grid{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start}
-.calendar-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.cal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1.5px solid var(--border)}
-.cal-nav{background:none;border:1.5px solid var(--border);width:34px;height:34px;border-radius:var(--radius-xs);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all var(--t);-webkit-tap-highlight-color:transparent}
-.cal-nav:hover,.cal-nav:active{background:var(--ink);color:white;border-color:var(--ink)}
-.cal-month{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--ink)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
-.cal-day-name{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--ink-4);text-align:center;padding:10px 2px;border-bottom:1px solid var(--border)}
-.cal-day{min-height:56px;padding:6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--t);position:relative;-webkit-tap-highlight-color:transparent}
-.cal-day:nth-child(7n){border-right:none}
-.cal-day:hover,.cal-day:active{background:var(--bg)}
-.cal-day.other-month{opacity:.3}
-.cal-day.today{background:var(--indigo-soft)}
-.cal-date{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--ink)}
-.cal-day.today .cal-date{color:var(--indigo)}
-.event-mini{width:5px;height:5px;border-radius:50%;background:var(--teal);margin:3px auto 0;display:block}
-.upcoming-list{display:flex;flex-direction:column;gap:10px}
-.upcoming-item{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:flex-start;transition:transform var(--t);-webkit-tap-highlight-color:transparent}
-.upcoming-item:hover{transform:translateX(4px)}
-.ui-date{background:var(--ink);color:white;border-radius:var(--radius-xs);padding:6px 10px;text-align:center;flex-shrink:0;min-width:44px}
-.ui-day{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;line-height:1}
-.ui-mon{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.08em}
-.ui-body{flex:1;min-width:0}
-.ui-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px}
-.ui-amount{font-size:12px;color:var(--ink-4)}
-.ui-badge{font-family:'Syne',sans-serif;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;float:right;margin-left:8px}
-.ui-badge.recurring{background:var(--indigo-soft);color:var(--indigo)}
-.ui-badge.once{background:var(--amber-soft);color:#b07d00}
-@media(max-width:900px){.schedule-grid{grid-template-columns:1fr}}
-@media(max-width:768px){
-  .cal-day{min-height:44px;padding:5px}
-  .cal-day-name{font-size:9px;padding:8px 2px}
-  .cal-date{font-size:10px}
-}
-@media(max-width:480px){
-  .cal-day{min-height:38px}
-  .upcoming-item{padding:11px 12px;gap:10px}
-  .ui-date{min-width:38px;padding:5px 8px}
-  .ui-day{font-size:15px}
-}
-{% endblock %}
- 
+{% block page_title %}Payment Schedule{% endblock %}
+
 {% block content %}
-<div class="topbar">
-  <div class="topbar-left">
-    <h1>Schedule 📅</h1>
-    <p>Upcoming bills and payments · <strong>{{ now }}</strong></p>
-  </div>
-  <div class="topbar-right">
-    <button class="btn btn-chat" id="openChatBtn">✦ Ask AI</button>
-    <button class="btn btn-primary">+ Add Event</button>
-  </div>
-</div>
- 
-<div class="schedule-grid">
-  <div>
-    <div class="section-label">Calendar</div>
-    <div class="calendar-card">
-      <div class="cal-header">
-        <button class="cal-nav" id="prevMonth">‹</button>
-        <span class="cal-month" id="calMonthLabel">{{ now }}</span>
-        <button class="cal-nav" id="nextMonth">›</button>
-      </div>
-      <div class="cal-grid" id="calGrid">
-        <div class="cal-day-name">Su</div><div class="cal-day-name">Mo</div>
-        <div class="cal-day-name">Tu</div><div class="cal-day-name">We</div>
-        <div class="cal-day-name">Th</div><div class="cal-day-name">Fr</div>
-        <div class="cal-day-name">Sa</div>
-      </div>
-    </div>
-  </div>
-  <div>
-    <div class="section-label">Upcoming payments</div>
-    <div class="upcoming-list">
-      {% for event in upcoming %}
-      <div class="upcoming-item">
-        <div class="ui-date"><div class="ui-day">{{ event.day }}</div><div class="ui-mon">{{ event.month }}</div></div>
-        <div class="ui-body">
-          <span class="ui-badge {{ 'recurring' if event.recurring else 'once' }}">{{ '🔁 Recurring' if event.recurring else '📌 Once' }}</span>
-          <div class="ui-title">{{ event.title }}</div>
-          <div class="ui-amount">₹{{ "{:,}".format(event.amount) }}</div>
-        </div>
-      </div>
-      {% else %}
-      <div style="text-align:center;padding:32px 16px;color:var(--ink-4)">
-        <div style="font-size:28px;margin-bottom:10px">📅</div>
-        <p style="font-size:13px;font-weight:300">No upcoming payments.</p>
+<div class="grid-2">
+  <!-- Calendar -->
+  <div class="card">
+    <div class="card-title">📅 July 2025 Calendar</div>
+    <div id="cal" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;">
+      {% for d in ['Su','Mo','Tu','We','Th','Fr','Sa'] %}
+      <div style="font-size:11px;color:var(--muted);padding:4px;font-weight:600;">{{ d }}</div>
+      {% endfor %}
+      <!-- offset for July 1 = Tuesday (index 2) -->
+      {% for _ in range(2) %}<div></div>{% endfor %}
+      {% for day in range(1, 32) %}
+      <div style="padding:6px 4px;border-radius:8px;font-size:13px;
+        {% if day in event_days %}background:rgba(108,99,255,0.2);color:var(--accent);font-weight:700;border:1px solid var(--accent);
+        {% else %}color:var(--muted);{% endif %}">
+        {{ day }}
       </div>
       {% endfor %}
     </div>
   </div>
+
+  <!-- Upcoming bills -->
+  <div class="card">
+    <div class="card-title">🔔 Upcoming Payments</div>
+    {% for event in upcoming %}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="background:rgba(108,99,255,0.15);color:var(--accent);padding:6px 10px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;min-width:42px;text-align:center;">
+          {{ event.day }}
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;">{{ event.title }}</div>
+          <div style="font-size:11px;color:var(--muted);">
+            {% if event.recurring %}🔄 Recurring{% else %}📌 One-time{% endif %}
+          </div>
+        </div>
+      </div>
+      <div style="font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--danger);">₹{{ event.amount }}</div>
+    </div>
+    {% endfor %}
+  </div>
 </div>
-{% endblock %}
- 
-{% block extra_scripts %}
-<script>
-const eventDays={{ event_days|tojson }};
-const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-let cur=new Date();
- 
-function renderCalendar(d){
-  const grid=document.getElementById('calGrid');
-  document.getElementById('calMonthLabel').textContent=`${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-  const dayNames=Array.from(grid.querySelectorAll('.cal-day-name'));
-  grid.innerHTML='';
-  dayNames.forEach(n=>grid.appendChild(n.cloneNode(true)));
-  const first=new Date(d.getFullYear(),d.getMonth(),1);
-  const last =new Date(d.getFullYear(),d.getMonth()+1,0);
-  const today=new Date();
-  for(let i=0;i<first.getDay();i++){
-    const el=document.createElement('div');
-    el.className='cal-day other-month';
-    const prev=new Date(d.getFullYear(),d.getMonth(),-first.getDay()+i+1);
-    el.innerHTML=`<div class="cal-date">${prev.getDate()}</div>`;
-    grid.appendChild(el);
-  }
-  for(let day=1;day<=last.getDate();day++){
-    const el=document.createElement('div');
-    const isToday=today.getFullYear()===d.getFullYear()&&today.getMonth()===d.getMonth()&&today.getDate()===day;
-    const hasEv=eventDays.includes(day);
-    el.className='cal-day'+(isToday?' today':'');
-    el.innerHTML=`<div class="cal-date">${day}</div>${hasEv?'<span class="event-mini"></span>':''}`;
-    grid.appendChild(el);
-  }
-}
-document.getElementById('prevMonth').addEventListener('click',()=>{cur=new Date(cur.getFullYear(),cur.getMonth()-1,1);renderCalendar(cur);});
-document.getElementById('nextMonth').addEventListener('click',()=>{cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);renderCalendar(cur);});
-renderCalendar(cur);
-</script>
 {% endblock %}

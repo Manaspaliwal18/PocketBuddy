@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 category,amount
 Rent,15000
 Internet,999
@@ -6,3 +7,8 @@ Netflix,649
 Insurance,3200
 Electricity,1800
  
+=======
+expense,amount,category
+rent,5000,housing
+food,200,food
+>>>>>>> 4cee8109cf6e7d4e7311069df5668b3ddc2f7b64

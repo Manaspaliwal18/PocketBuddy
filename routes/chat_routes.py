@@ -9,15 +9,9 @@ def chat_endpoint():
     """
     Expects JSON body:
     {
-        "messages": [
-            {"role": "user", "content": "..."},
-            ...
-        ]
+        "messages": [{"role": "user", "content": "..."}, ...]
     }
-    Returns:
-    {
-        "reply": "..."
-    }
+    Returns: {"reply": "..."}
     """
     body = request.get_json(silent=True)
     if not body or "messages" not in body:
@@ -27,7 +21,6 @@ def chat_endpoint():
     if not isinstance(messages, list) or not messages:
         return jsonify({"error": "'messages' must be a non-empty list."}), 400
  
-    # Validate each message
     for msg in messages:
         if not isinstance(msg, dict) or "role" not in msg or "content" not in msg:
             return jsonify({"error": "Each message must have 'role' and 'content'."}), 400

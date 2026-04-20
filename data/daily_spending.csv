@@ -1,48 +1,21 @@
 date,amount,category
-2026-03-02,216,Health
-2026-03-02,395,Food & Dining
-2026-03-03,249,Utilities
-2026-03-03,450,Entertainment
-2026-03-03,582,Entertainment
-2026-03-05,342,Shopping
-2026-03-06,394,Utilities
-2026-03-07,135,Health
-2026-03-07,338,Transport
-2026-03-07,355,Health
-2026-03-07,432,Health
-2026-03-07,472,Entertainment
-2026-03-08,132,Transport
-2026-03-08,387,Health
-2026-03-08,501,Utilities
-2026-03-09,190,Transport
-2026-03-09,452,Health
-2026-03-09,463,Food & Dining
-2026-03-09,770,Food & Dining
-2026-03-12,414,Shopping
-2026-03-12,818,Shopping
-2026-03-13,267,Shopping
-2026-03-13,334,Health
-2026-03-13,424,Shopping
-2026-03-13,664,Shopping
-2026-03-18,225,Health
-2026-03-18,246,Transport
-2026-03-18,687,Food & Dining
-2026-03-18,964,Shopping
-2026-03-19,498,Utilities
-2026-03-20,187,Health
-2026-03-20,874,Food & Dining
-2026-03-21,325,Food & Dining
-2026-03-21,366,Shopping
-2026-03-22,136,Health
-2026-03-22,379,Health
-2026-03-22,918,Shopping
-2026-03-23,374,Utilities
-2026-03-23,579,Entertainment
-2026-03-24,450,Shopping
-2026-03-25,281,Shopping
-2026-03-25,304,Shopping
-2026-03-27,416,Health
-2026-03-27,534,Food & Dining
-2026-03-27,623,Food & Dining
-2026-03-28,131,Transport
-2026-03-29,791,Shopping
+2025-07-01,450,Food & Dining
+2025-07-01,200,Transport
+2025-07-02,1200,Shopping
+2025-07-02,350,Food & Dining
+2025-07-03,800,Entertainment
+2025-07-03,150,Transport
+2025-07-04,600,Food & Dining
+2025-07-04,1500,Shopping
+2025-07-05,300,Utilities
+2025-07-05,400,Food & Dining
+2025-07-06,250,Transport
+2025-07-06,900,Health
+2025-07-07,700,Food & Dining
+2025-07-07,2200,Shopping
+2025-07-08,180,Transport
+2025-07-08,500,Entertainment
+2025-07-09,420,Food & Dining
+2025-07-09,1100,Utilities
+2025-07-10,350,Food & Dining
+2025-07-10,600,Shopping

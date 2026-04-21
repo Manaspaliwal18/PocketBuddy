@@ -48,7 +48,7 @@
 
   <!-- AI Insights -->
   <div class="card">
-    <div class="card-title">🧠 AI Insights</div>
+    <div class="card-title">💡 Generated Insights</div>
     {% if summary.insights %}
       {% for insight in summary.insights %}
       <div class="insight-item {{ insight.type }}">{{ insight.message | safe }}</div>
